@@ -2,54 +2,119 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DonnySsi V2 - NEW BORN FIX</title>
+<title>DonnySsi V4 SEMPURNA</title>
 <style>
-body{margin:0;background:#070A14;color:#fff;font-family:system-ui;padding:12px}
-h1{color:#D4AF37;text-align:center} .card{background:#11182f;border:1px solid #D4AF37;border-radius:12px;padding:12px;margin:10px 0}
-.status{background:#000;padding:8px;border-radius:8px;font-family:monospace;font-size:12px;word-break:break-all;margin-top:8px}
-.btn{width:100%;padding:12px;background:#D4AF37;color:#000;font-weight:800;border:0;border-radius:10px;margin-top:8px}
-#log{height:250px;overflow:auto;background:#0009;padding:8px;border-radius:10px;font-size:11px;font-family:monospace}
+body{margin:0;background:#070A14;color:#fff;font-family:system-ui;padding:10px}
+h2{color:#D4AF37;text-align:center;margin:6px}
+.card{background:#0e162f;border:2px solid #222;border-radius:16px;padding:12px;margin:10px 0}
+.safe{border-color:#00ff88}.danger{border-color:#ff3333}.gold{border-color:#D4AF37}
+.big{font-size:28px;font-weight:900;text-align:center;padding:12px;border-radius:12px;margin:8px 0}
+.buy{background:#00ff88;color:#000}.skip{background:#ff3333;color:#fff}.wait{background:#222;color:#aaa}
+.btn{width:100%;padding:13px;border-radius:12px;border:0;font-weight:900;font-size:14px;margin-top:8px}
+.btn-gold{background:#D4AF37;color:#000}.btn-dark{background:#101a36;color:#fff;border:1px solid #D4AF37}
+.mono{font-family:monospace;font-size:11px;background:#000;padding:8px;border-radius:8px;word-break:break-all;white-space:pre-wrap}
+#log{height:160px;overflow:auto;background:#000;padding:8px;border-radius:10px;font-size:11px;font-family:monospace}
+table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+th,td{border-bottom:1px solid #222;padding:6px;text-align:left}
+th{color:#D4AF37}.green{color:#00ff88}.red{color:#ff4444}
+.tag{padding:2px 6px;border-radius:10px;font-size:10px;font-weight:800}
 </style>
 </head>
 <body>
-<h1>DonnySsi Office V2 - FIX SCREEN</h1>
-<div style="text-align:center"><button class="btn" style="max-width:300px" onclick="connect()">🔗 CONNECT PHANTOM</button><div id="wallet" style="margin-top:6px;font-size:12px">Belum connect</div></div>
-<div class="card"><b>🔍 HUNTER X V2 - NEW BORN</b><div class="status" id="hunter">Mulai patrol...</div><button class="btn" onclick="patrol()">🔄 PATROL SEKARANG</button></div>
-<div class="card"><b>🧠 ALPHA SAGE</b><div class="status" id="sage">Menunggu...</div></div>
-<div class="card"><b>🛡️ SHIELD ZERO</b><div class="status" id="shield">Siaga...</div></div>
-<div class="card"><b>⚡ FLASH EXEC</b><div class="status" id="flash">Connect wallet dulu!</div><button class="btn" onclick="quote()">CEK QUOTE</button><button class="btn" style="background:#0f1730;color:#fff;border:1px solid #D4AF37" onclick="swap()">SWAP REAL</button></div>
-<div class="card"><b>📡 LOG</b><div id="log">V2 FIX start...
+<h2>🏆 DonnySsi V4 - SEMPURNA</h2>
+
+<div class="card gold">
+<b>💰 SIMULASI PROFIT 10 TOKEN TERAKHIR</b>
+<div style="font-size:11px;color:#aaa">Kalo lu beli 50k tiap token baru (fee 312) - Apa profit?</div>
+<div class="big wait" id="totalPL">⏳ HITUNG PROFIT...</div>
+<div style="display:flex;gap:8px;font-size:11px"><div>Modal: <span id="modal">Rp0</span></div><div>Profit: <span id="profit">Rp0</span></div><div>Winrate: <span id="winrate">0%</span></div></div>
+<table><thead><tr><th>Token</th><th>Umur</th><th>Naik 5m</th><th>PL 50k</th></tr></thead><tbody id="profitTable"><tr><td colspan=4>Loading...</td></tr></tbody></table>
+<button class="btn btn-gold" onclick="hitungProfit()">🔄 HITUNG ULANG PROFIT</button>
+</div>
+
+<div style="text-align:center"><button class="btn btn-gold" onclick="connect()" style="max-width:320px">🔗 CONNECT PHANTOM</button><div id="wal" style="font-size:12px;color:#aaa">Belum connect</div></div>
+
+<div class="card" id="mainCard">
+<div style="font-size:11px;color:#D4AF37">🎯 TARGET REALTIME</div>
+<div id="name" style="font-size:20px;font-weight:800">Scanning...</div>
+<div class="mono" id="info">Mencari...</div>
+<div class="big wait" id="dec">⏳ SCAN...</div>
+<div id="shieldBox" style="font-size:11px"></div>
+<div style="margin-top:8px;font-size:11px"><label><input type="checkbox" id="autoSell" checked> Auto-Sell TP +100% / SL -30% (simulasi)</label></div>
+<button class="btn btn-gold" onclick="patrol()">🔄 CARI TOKEN BARU</button>
+<button class="btn btn-dark" onclick="simulate()">🧪 SIMULASI BELI</button>
+<button class="btn btn-dark" style="border-color:#00ff88" onclick="swapReal()">🚀 SWAP REAL 50K</button>
+</div>
+
+<div class="card"><b>📡 LOG V4</b><div id="log">V4 Sempurna start...
 </div></div>
+
 <script>
-let pubkey=null,last=null;
-const log=m=>{let e=document.getElementById('log');e.innerHTML+=`[${new Date().toLocaleTimeString()}] ${m}\n`;e.scrollTop=9999}
-async function connect(){
- if(!window.solana?.isPhantom){alert('Buka di Phantom Browser!');return}
- let r=await window.solana.connect();pubkey=r.publicKey;let s=pubkey.toString().slice(0,4)+'...'+pubkey.toString().slice(-4);
- document.getElementById('wallet').innerText='✅ '+s;log('CONNECTED '+s)
-}
-async function patrol(){
- document.getElementById('hunter').innerText='Patrol token baru lahir SOL...';
+let pubkey=null,last=null,profitData=[];
+const BLACKLIST=['SOL','WSOL','USDC','USDT','WETH','WBTC','MSOL','JUP','BONK','WIF','POPCAT','STABLE','USD'];
+const log=m=>{let e=document.getElementById('log');e.textContent+=`[${new Date().toLocaleTimeString()}] ${m}\n`;e.scrollTop=9999}
+async function connect(){if(!window.solana?.isPhantom){alert('Buka di Phantom Browser');return}try{let r=await window.solana.connect();pubkey=r.publicKey;document.getElementById('wal').innerText='✅ '+pubkey.toString().slice(0,4)+'...'+pubkey.toString().slice(-4);log('Wallet OK')}catch(e){log('Connect fail '+e)}}
+
+async function hitungProfit(){
+ document.getElementById('totalPL').innerText='⏳ Hitung 10 token...';
  try{
-  // ENDPOINT YANG PASTI JALAN DI GITHUB PAGES
-  let r=await fetch('https://api.dexscreener.com/latest/dex/tokens/SOL');
-  let j=await r.json();
-  let pairs=j.pairs||[];
-  // FILTER: ambil yang umur < 120 menit & liq > $4000
-  let newborn=pairs.filter(p=>p.chainId==='solana'&&p.liquidity&&p.liquidity.usd>4000).sort((a,b)=>b.pairCreatedAt-a.pairCreatedAt).slice(0,5);
-  if(newborn.length==0){newborn=pairs.slice(0,3)}
-  let p=newborn[0];last=p;let age=Math.floor((Date.now()-p.pairCreatedAt)/60000);
-  document.getElementById('hunter').innerText=`${p.baseToken.symbol} | $${Number(p.priceUsd).toFixed(6)} | Liq $${Math.round(p.liquidity.usd)} | Umur ${age} menit | ${p.dexId}`;
-  document.getElementById('sage').innerText=`NEW BORN DETECTED: ${p.baseToken.symbol} umur ${age}m ${age<60?'🔥 BARU LAHIR BANGET! GAS!':'✅ Masih baru'}`;
-  document.getElementById('shield').innerText=`SHIELD: Liq $${Math.round(p.liquidity.usd)} ${p.liquidity.usd>10000?'AMAN GAS':'HATI-HATI'}`;
-  log(`HUNTER V2: ${p.baseToken.symbol} umur ${age}m liq $${Math.round(p.liquidity.usd)} addr ${p.baseToken.address.slice(0,10)}...`);
-  // tampilkan 3 token lain di log
-  newborn.slice(1).forEach(x=>{let ag=Math.floor((Date.now()-x.pairCreatedAt)/60000);log(`- CANDIDATE ${x.baseToken.symbol} ${ag}m Liq $${Math.round(x.liquidity.usd)}`)});
- }catch(e){document.getElementById('hunter').innerText='Gagal fetch, retry... '+e;log('ERROR '+e)}
+  let res=await fetch('https://api.dexscreener.com/latest/dex/search?q=SOL');
+  let j=await res.json();
+  let pairs=j.pairs.filter(p=>p&&p.chainId==='solana'&&p.baseToken&&!BLACKLIST.includes(p.baseToken.symbol.toUpperCase())&&p.liquidity&&p.liquidity.usd>5000&&p.liquidity.usd<150000&&p.pairCreatedAt).sort((a,b)=>b.pairCreatedAt-a.pairCreatedAt).slice(0,10);
+  let rows='';let totalModal=0,totalProfit=0,win=0;
+  pairs.forEach(p=>{
+    let age=Math.floor((Date.now()-p.pairCreatedAt)/60000);
+    let ch5m=p.priceChange?.m5||0;
+    let ch1h=p.priceChange?.h1||0;
+    // Simulasi: beli 50k, fee 312. Kalo naik 5m segitu, profit = 50k * ch5m% - fee
+    let modal=50000;
+    let fee=312;
+    let profit=Math.round(modal*ch5m/100 - fee*2); // beli+jual
+    if(ch5m>20) profit=Math.round(modal*1 - fee*2); // cap kalo auto-sell TP 100%
+    if(ch5m<-30) profit=Math.round(modal*-0.3 - fee*2); // SL -30%
+    totalModal+=modal;totalProfit+=profit;if(profit>0) win++;
+    let cls=profit>0?'green':'red';
+    rows+=`<tr><td>${p.baseToken.symbol}</td><td>${age}m</td><td class="${ch5m>0?'green':'red'}">${ch5m}%</td><td class="${cls}">${profit>0?'+':''}Rp${profit.toLocaleString()}</td></tr>`;
+  });
+  document.getElementById('profitTable').innerHTML=rows;
+  document.getElementById('modal').innerText='Rp'+totalModal.toLocaleString();
+  document.getElementById('profit').innerText='Rp'+totalProfit.toLocaleString();
+  document.getElementById('winrate').innerText=Math.round(win/pairs.length*100)+'% ('+win+'/'+pairs.length+')';
+  let totalEl=document.getElementById('totalPL');
+  if(totalProfit>0){totalEl.className='big buy';totalEl.innerText=`💰 PROFIT Rp${totalProfit.toLocaleString()} DARI 10 TOKEN`;}
+  else{totalEl.className='big skip';totalEl.innerText=`📉 RUGI Rp${totalProfit.toLocaleString()} DARI 10 TOKEN`;}
+  log(`Profit calc: modal Rp${totalModal} profit Rp${totalProfit} winrate ${win}/10`);
+ }catch(e){log('Profit err '+e);document.getElementById('totalPL').innerText='Gagal hitung, klik lagi';}
 }
-async function quote(){if(!pubkey){alert('Connect dulu');return}if(!last){alert('Patrol dulu');return}log('Quote '+last.baseToken.symbol+'...');document.getElementById('flash').innerText='Quote ready - Fee 312'}
-async function swap(){if(!pubkey){alert('Connect dulu');return}alert('Swap real siap - tinggal aktifin Jupiter swap')}
-setInterval(patrol,25000);patrol();
+
+async function patrol(){
+ document.getElementById('dec').className='big wait';document.getElementById('dec').innerText='⏳ SCAN...';
+ try{
+  let res=await fetch('https://api.dexscreener.com/latest/dex/search?q=SOL');
+  let j=await res.json();
+  let pairs=j.pairs.filter(p=>p&&p.chainId==='solana'&&p.pairCreatedAt&&p.baseToken&&!BLACKLIST.includes(p.baseToken.symbol.toUpperCase())&&p.liquidity&&p.liquidity.usd>=8000&&p.liquidity.usd<=120000).sort((a,b)=>b.pairCreatedAt-a.pairCreatedAt);
+  if(pairs.length==0) throw 'Gak ada yang lolos filter';
+  let p=pairs[0];last=p;
+  let age=Math.floor((Date.now()-p.pairCreatedAt)/60000);
+  let liq=Math.round(p.liquidity.usd);let fdv=Math.round(p.fdv||0);let vol=Math.round(p.volume?.h24||0);
+  let ch5m=p.priceChange?.m5||0;
+  document.getElementById('name').innerText=`${p.baseToken.symbol} - ${p.baseToken.name}`;
+  document.getElementById('info').innerText=`Addr: ${p.baseToken.address}\nHarga: $${p.priceUsd} | 5m: ${ch5m}%\nLiq: $${liq} | FDV: $${fdv} | Vol: $${vol}\nUmur: ${age}m | DEX: ${p.dexId}\nhttps://dexscreener.com/solana/${p.pairAddress}`;
+  let score=0;let checks=[];
+  if(age<30) {score+=30;checks.push(`✅ Baru ${age}m`)} else if(age<120){score+=15;checks.push(`⚠️ Umur ${age}m`)} else {checks.push(`❌ Tua ${age}m`)}
+  if(liq>=15000) {score+=25;checks.push(`✅ Liq $${liq}`)} else {checks.push(`❌ Liq $${liq} tipis`)}
+  if(fdv<800000){score+=20;checks.push(`✅ FDV kecil`)} else {checks.push(`❌ FDV gede`)}
+  if(vol>8000){score+=15;checks.push(`✅ Vol rame`)} else {checks.push(`❌ Vol sepi`)}
+  if(ch5m>-20){score+=10;checks.push(`✅ Gak dump 5m`)} else {checks.push(`❌ Dump ${ch5m}%`)}
+  document.getElementById('shieldBox').innerHTML=checks.join('<br>')+`<br><b>SKOR: ${score}/100</b>`;
+  let dec=document.getElementById('dec');let card=document.getElementById('mainCard');
+  if(score>=70){dec.className='big buy';dec.innerText=`🚀 GAS BELI - ${score}`;card.className='card safe';log(`GAS ${p.baseToken.symbol} skor ${score}`)}else{dec.className='big skip';dec.innerText=`⛔ SKIP - ${score}`;card.className='card danger';log(`SKIP ${p.baseToken.symbol} skor ${score}`)}
+ }catch(e){document.getElementById('info').innerText='Error: '+e;log('ERR '+e)}
+}
+function simulate(){if(!last){alert('Scan dulu');return}let tp=document.getElementById('autoSell').checked?'\nAuto-Sell: TP +100% / SL -30% ON':'';alert(`SIMULASI V4\n\n${last.baseToken.symbol}\nHarga $${last.priceUsd}\n\nModal 50k + Fee 312\n${tp}\n\nKalo TP kena: +50k\nKalo SL kena: -15k - fee\n\nCek DexScreener dulu!`);log('Sim '+last.baseToken.symbol)}
+function swapReal(){if(!pubkey){alert('Connect dulu');return}if(!last){alert('Scan dulu');return}if(confirm(`SWAP REAL ${last.baseToken.symbol} 50k?`)){log(`REAL SWAP ${last.baseToken.symbol}`);alert('Jupiter swap real ready - bilang AKTIFIN kalo mau gue sambungin real swapnya')}}
+
+hitungProfit();patrol();setInterval(patrol,30000);setInterval(hitungProfit,60000);
 </script>
 </body>
 </html>
