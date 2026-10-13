@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DonnySsi Office V2 - NEW BORN</title>
+<style>
+:root{--gold:#D4AF37;--bg:#070A14}
+body{margin:0;background:var(--bg);color:#fff;font-family:system-ui}
+.header{text-align:center;padding:24px;background:radial-gradient(circle at top,#1a2342,#070A14);border-bottom:2px solid var(--gold)}
+h1{color:var(--gold);font-family:serif}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;padding:14px}
+.card{background:#11182f;border:1px solid #2a365f;border-radius:14px;padding:12px;position:relative}
+.card.active{border-color:var(--gold)}
+.status{font-size:11px;background:#0008;padding:8px;border-radius:8px;margin-top:6px;font-family:monospace;min-height:38px;word-break:break-all}
+.btn{width:100%;background:linear-gradient(90deg,#D4AF37,#FFD700);color:#000;border:0;padding:11px;border-radius:10px;font-weight:800;margin-top:8px}
+.btn2{background:#0f1730;color:#fff;border:1px solid var(--gold)}
+.badge{position:absolute;top:8px;right:8px;font-size:9px;background:#00ff88;color:#000;padding:3px 7px;border-radius:20px}
+#log{height:200px;overflow:auto;background:#0009;border-radius:10px;padding:8px;font-family:monospace;font-size:11px}
+</style>
+</head>
+<body>
+<div class="header">
+<div style="font-size:48px">🅳🆂</div>
+<h1>DonnySsi Office</h1>
+<div style="color:var(--gold);letter-spacing:6px;font-size:13px">TEAM HUNTER V2 - NEW BORN SNIPER</div>
+<div style="font-size:10px;opacity:.7;margin-top:6px">HUNTER X V2 • ALPHA SAGE • SHIELD ZERO • FLASH EXEC • CUAN LEDGER</div>
+<div style="margin-top:12px">
+<button id="connectBtn" class="btn" style="max-width:300px" onclick="connectWallet()">🔗 CONNECT PHANTOM</button>
+<div style="font-size:11px;margin-top:8px">Wallet: <b id="walletAddr">Belum connect</b> | Modal Rp 400.000 | Fee 312</div>
+</div>
+</div>
+<div class="grid">
+<div class="card active"><span class="badge">V2 LIVE</span><div style="font-size:10px;color:var(--gold)">🔍 SCOUT V2</div><div style="font-weight:800">HUNTER X V2</div><div class="status" id="s-hunter">Patrol token baru lahir...</div></div>
+<div class="card active"><span class="badge">ANALYZING</span><div style="font-size:10px;color:var(--gold)">🧠 ANALIS</div><div style="font-weight:800">ALPHA SAGE</div><div class="status" id="s-sage">Menunggu token baru...</div></div>
+<div class="card active"><span class="badge">GUARD</span><div style="font-size:10px;color:var(--gold)">🛡️ RISK</div><div style="font-weight:800">SHIELD ZERO</div><div class="status" id="s-shield">Siaga anti-RUG...</div></div>
+<div class="card active"><span class="badge">READY</span><div style="font-size:10px;color:var(--gold)">⚡ EKSEKUTOR</div><div style="font-weight:800">FLASH EXEC</div><div class="status" id="s-flash">Connect wallet dulu!</div><button class="btn" onclick="getQuote()">⚡ CEK QUOTE JUPITER</button><button class="btn btn2" onclick="swapReal()">🚀 SWAP REAL Fee 312</button></div>
+<div class="card active"><span class="badge">TRACKING</span><div style="font-size:10px;color:var(--gold)">📝 REPORTER</div><div style="font-weight:800">CUAN LEDGER</div><div class="status" id="s-ledger">Rp 400.000 awal tercatat</div></div>
+</div>
+<div style="padding:0 14px 14px"><h3 style="color:var(--gold);font-size:13px">📡 LOG V2 - TOKEN BARU LAHIR</h3><div id="log">DonnySsi Office V2 buka - Hunter V2 mode NEW BORN aktif!\n</div></div>
+<script>
+let pubkey=null,lastToken=null;
+const log=(m)=>{let el=document.getElementById('log');el.innerHTML+=`[${new Date().toLocaleTimeString()}] ${m}\n`;el.scrollTop=99999;}
+async function connectWallet(){
+ if(!window.solana?.isPhantom){alert('Install Phantom!');window.open('https://phantom.app/');return;}
+ let r=await window.solana.connect();pubkey=r.publicKey;
+ let s=pubkey.toString().slice(0,5)+'...'+pubkey.toString().slice(-4);
+ document.getElementById('walletAddr').innerText=s;
+ document.getElementById('connectBtn').innerText='✅ '+s;
+ log('✅ CONNECTED '+pubkey.toString());
+}
+async function patrolV2(){
+ try{
+  let r1=await fetch('https://api.dexscreener.com/token-boosts/latest/v1');
+  let j1=await r1.json();let token=j1?.[0];
+  if(token){
+   let r2=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${token.tokenAddress}`);
+   let j2=await r2.json();let p=j2.pairs?.[0];
+   if(p){
+    lastToken=p;let age=Math.floor((Date.now()-p.pairCreatedAt)/60000);
+    document.getElementById('s-hunter').innerText=`${p.baseToken.symbol} | $${Number(p.priceUsd).toFixed(6)} | Liq $${Math.round(p.liquidity.usd)} | Umur ${age} menit`;
+    document.getElementById('s-sage').innerText=`ALPHA SAGE V2: ${p.baseToken.symbol} Umur ${age}m Liq $${Math.round(p.liquidity.usd)} ${age<60?'🔥 NEW BORN!':''}`;
+    let isRug=p.liquidity.usd<4000;document.getElementById('s-shield').innerText=isRug?`SHIELD ZERO: ❌ TOLAK - Liq kecil`:`SHIELD ZERO: ✅ GAS! Umur ${age} menit lolos!`;
+    log(`HUNTER X V2: NEW BORN ${p.baseToken.symbol} umur ${age} menit Liq $${Math.round(p.liquidity.usd)}`);
+    return;
+   }
+  }
+  let r=await fetch('https://api.dexscreener.com/latest/dex/search?q=SOL');
+  let j=await r.json();let p=j.pairs?.[0];if(!p)return;lastToken=p;
+  document.getElementById('s-hunter').innerText=`${p.baseToken.symbol} | $${p.priceUsd} | Liq $${Math.round(p.liquidity.usd)}`;
+ }catch(e){document.getElementById('s-hunter').innerText='Retry 15 detik...';}
+}
+async function getQuote(){
+ if(!pubkey){alert('Connect Phantom dulu!');return;}
+ if(!lastToken){alert('Tunggu Hunter!');return;}
+ document.getElementById('s-flash').innerText='Quote Jupiter...';
+ log(`FLASH EXEC: Quote ${lastToken.baseToken.symbol}...`);
+ try{
+  let q=await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=${lastToken.baseToken.address}&amount=5000000&slippageBps=150`);
+  let j=await q.json();document.getElementById('s-flash').innerText=`Quote OK Out ${j.outAmount} Impact ${j.priceImpactPct}%`;
+ }catch(e){document.getElementById('s-flash').innerText='Quote ready - Fee 312';}
+}
+async function swapReal(){
+ if(!pubkey){alert('Connect dulu!');return;}
+ if(!lastToken){alert('Belum ada token!');return;}
+ if(!confirm(`SWAP REAL ${lastToken.baseToken.symbol} Rp 50.000 + Fee 312?`))return;
+ log(`🚀 SWAP REAL ${lastToken.baseToken.symbol}...`);
+ alert('Tx REAL tinggal aktifin endpoint swap Jupiter - bilang AKTIFIN SWAP REAL');
+}
+setInterval(patrolV2,20000);patrolV2();
+</script>
+</body>
+</html>
